@@ -1,0 +1,10 @@
+#version 330 core
+out vec4 FragColor;
+in vec4 vertexColour;
+in vec2 coordsTexture;
+uniform sampler2D ourTexture;
+void main()
+{
+   //FragColor = texture(ourTexture,coordsTexture);   //first from uniform(colour on texture) second from input by previous(coords)  
+		FragColor = texture(ourTexture,coordsTexture); 
+}

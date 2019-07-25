@@ -1,19 +1,24 @@
 #include <iostream>
-#define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "Shader.H"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 void processInput(GLFWwindow *window);
 //Vertex array
 float vertices[] = {
-	 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,   
-	-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,   
-	 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f,    
-	 0.5f,  0.5f, 0.0f, 0.7f, 0.5f, 0.6f
+		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   
+	 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,		1.0f, 0.0f,   
+	-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   
+	-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,		0.0f, 1.0f   
+	/* 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,     1.0f, 1.0f,  
+	-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,     1.0f, 0.0f,   
+	 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f,     0.0f, 0.0f,   
+	 -0.9f,  0.5f, 0.0f, 0.7f, 0.5f, 0.1f	  0.0f, 1.0f */
 };
 unsigned int indices[] = {  // note that we start from 0!
 	0, 1, 2,   // first triangle
-	2, 1, 3    // second triangle
+	2, 3, 0   // second triangle
 };
 
 
@@ -45,7 +50,7 @@ int main() {
 	glCullFace(GL_BACK);*/
 	//set VAO
 	
-	Shader *testShader = new Shader("vertexSourceFile.vs", "fragmentSourceFile.fs");
+	Shader *testShader = new Shader("vertexSourceFile.vxs", "fragmentSourceFile.fts");
 	unsigned int VAO;
 	glGenVertexArrays(1,&VAO);
 	glBindVertexArray(VAO);
@@ -72,12 +77,36 @@ int main() {
 	//GL_FLASE: normalize the vertex if it is not in normal space
 	//3 * sizeof(float): stride, how much memories will be jump to reach next vertex
 	//(void*)0: offset of begin of data
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (3* sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (3* sizeof(float)));
 	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 	
-	
+	unsigned int TEXBO; //texture buffer object in context
+	glGenTextures(1, &TEXBO);
+	glBindTexture(GL_TEXTURE_2D, TEXBO);
+	// setting filer for texuture
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//reverse 180 degree before texture loading. Image's y axis is reverse from opengl
+	stbi_set_flip_vertically_on_load(true);
+	// load texture
+	int width, height, nrChannels;
+	unsigned char *data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
 	
 	//Using shader program	
 	
@@ -98,7 +127,7 @@ int main() {
 			//first to make sure that the screen and buffer have been cleaned 
 		glClearColor(0.3f, 0.3f, 1.0f, 1.0f); //clean the screen then fill the window by signed colour
 		glClear(GL_COLOR_BUFFER_BIT); //clean the buffer
-
+		glBindTexture(GL_TEXTURE_2D, TEXBO);
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		/*glUseProgram(shaderProgram);		
