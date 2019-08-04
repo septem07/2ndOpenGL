@@ -4,9 +4,15 @@ layout (location = 1) in vec3 aColour;
 layout (location = 2) in vec2 aTexture;
 out vec4 vertexColour;
 out vec2 coordsTexture;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+uniform vec3 cPosition[10];
+
 void main()
 {
-   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+   vec3 newPosition = cPosition[gl_InstanceID];
+   gl_Position =  projection * view * model *vec4(aPos + newPosition,1.0);
    vertexColour = vec4(aColour.x,aColour.y +0.2,aColour.z, 1.0);
    coordsTexture = aTexture;
 }  

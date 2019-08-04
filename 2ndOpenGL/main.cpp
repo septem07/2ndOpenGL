@@ -2,20 +2,84 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "Shader.H"
+#include <stdlib.h>
+#include <time.h> 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
+#include "Camera.h"
 void processInput(GLFWwindow *window);
 //Vertex array
+//float vertices[] = {
+//		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   
+//	 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,		1.0f, 0.0f,   
+//	-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   
+//	-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,		0.0f, 1.0f   
+//	/* 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,     1.0f, 1.0f,  
+//	-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,     1.0f, 0.0f,   
+//	 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f,     0.0f, 0.0f,   
+//	 -0.9f,  0.5f, 0.0f, 0.7f, 0.5f, 0.1f	  0.0f, 1.0f */
+//};
+
+
 float vertices[] = {
-		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   
-	 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,		1.0f, 0.0f,   
-	-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   
-	-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,		0.0f, 1.0f   
-	/* 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,     1.0f, 1.0f,  
-	-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,     1.0f, 0.0f,   
-	 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f,     0.0f, 0.0f,   
-	 -0.9f,  0.5f, 0.0f, 0.7f, 0.5f, 0.1f	  0.0f, 1.0f */
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
+glm::vec3 cubePositions[] = {
+  glm::vec3(0.1f,  0.2f,  0.5f),
+  glm::vec3(2.0f,  5.0f, -15.0f),
+  glm::vec3(-1.5f, -2.2f, -2.5f),
+  glm::vec3(-3.8f, -2.0f, -12.3f),
+  glm::vec3(2.4f, -0.4f, -3.5f),
+  glm::vec3(-1.7f,  3.0f, -7.5f),
+  glm::vec3(1.3f, -2.0f, -2.5f),
+  glm::vec3(1.5f,  2.0f, -2.5f),
+  glm::vec3(1.5f,  0.2f, -1.5f),
+  glm::vec3(-1.3f,  1.0f, -1.5f)
+};
+
 unsigned int indices[] = {  // note that we start from 0!
 	0, 1, 2,   // first triangle
 	2, 3, 0   // second triangle
@@ -23,12 +87,14 @@ unsigned int indices[] = {  // note that we start from 0!
 
 
 int main() {
-
+	
 	glfwInit();  //initialization glfw window
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);	//Hint to glfw: utilize main (3) version of opengl
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);	//Hint to glfw: utilize branch (.3) version of opengl 
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);	//Using core profile as the profile
-
+	//
+	
+	
 	GLFWwindow* window = glfwCreateWindow(1600,1200,"The_first_OpenglWindow",NULL,NULL);
 	if (window == NULL)
 	{
@@ -44,13 +110,14 @@ int main() {
 	{
 		std::cout << "glew ist not success" << std::endl;
 	}
-	glViewport(0, 0, 1600, 1200);
+	glViewport(200, 0, 1200, 1200);
 	//Function, enable opengl to cut off the back(clockwised) vertex or front(anticlockwised) vertex
 	/*glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);*/
 	//set VAO
 	
 	Shader *testShader = new Shader("vertexSourceFile.vxs", "fragmentSourceFile.fts");
+	
 	unsigned int VAO;
 	glGenVertexArrays(1,&VAO);
 	glBindVertexArray(VAO);
@@ -77,16 +144,26 @@ int main() {
 	//GL_FLASE: normalize the vertex if it is not in normal space
 	//3 * sizeof(float): stride, how much memories will be jump to reach next vertex
 	//(void*)0: offset of begin of data
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	//------before co¨®rdinates
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	//glEnableVertexAttribArray(0);
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (3* sizeof(float)));
+	//glEnableVertexAttribArray(1);
+	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (6 * sizeof(float)));
+	//glEnableVertexAttribArray(2);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (3* sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (6 * sizeof(float)));
+	/*glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);*/
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 	
-	unsigned int TEXBO; //texture buffer object in context
-	glGenTextures(1, &TEXBO);
-	glBindTexture(GL_TEXTURE_2D, TEXBO);
+	unsigned int TEXBO_A; //texture buffer object A in context
+	glGenTextures(1, &TEXBO_A);
+	glActiveTexture(GL_TEXTURE0); //active the channel of texture 1, keep texture alive in context
+	glBindTexture(GL_TEXTURE_2D, TEXBO_A);
+
 	// setting filer for texuture
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -96,27 +173,65 @@ int main() {
 	stbi_set_flip_vertically_on_load(true);
 	// load texture
 	int width, height, nrChannels;
-	unsigned char *data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
-	if (data)
+	unsigned char *data1 = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
+	if (data1)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data1);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
 	{
 		std::cout << "Failed to load texture" << std::endl;
 	}
-	stbi_image_free(data);
+
+	//second texture buffer object B in context
+	unsigned int TEXBO_B;
+	glGenTextures(1, &TEXBO_B);
+	glActiveTexture(GL_TEXTURE1);  //active the channel of texture 1, keep texture alive in context
+	glBindTexture(GL_TEXTURE_2D, TEXBO_B);
+	// setting filer for texuture
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//reverse 180 degree before texture loading. Image's y axis is reverse from opengl
+	stbi_set_flip_vertically_on_load(true);
+	// load texture
+	
+	unsigned char *data2 = stbi_load("huajialpha.png", &width, &height, &nrChannels, 0);
+	if (data2)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data2);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+
+
+	stbi_image_free(data1);
+	stbi_image_free(data2);
 	
 	//Using shader program	
-	
-	
-	//delete the shader object (because shader source(form) have been pass into program thus the shader object is useless anymore)
-	/*glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);*/
 
-	
-	
+
+	//depth buffer enable
+	glEnable(GL_DEPTH_TEST);
+	//create a new camera
+	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+	glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	float theta_pitch = glm::radians(60.0);
+	float theta_yaw = glm::radians(0.0);
+	Camera *firstCamera = new Camera(cameraPos,cameraFront,worldUp);
+	Camera *secondCamera = new Camera(cameraPos, theta_pitch, theta_yaw, worldUp);
+	float deltaTime = 0.0f;
+	float lastFrame = 0.0f; 
+	float currentFrame = glfwGetTime();
+	deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
+
 	void framebuffer_size_callback(GLFWwindow* window, int width, int height);	//callback the window* size after deformation of window by external operation
 	//glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	while (!glfwWindowShouldClose(window)) //do drawing during window is opening
@@ -127,17 +242,83 @@ int main() {
 			//first to make sure that the screen and buffer have been cleaned 
 		glClearColor(0.3f, 0.3f, 1.0f, 1.0f); //clean the screen then fill the window by signed colour
 		glClear(GL_COLOR_BUFFER_BIT); //clean the buffer
-		glBindTexture(GL_TEXTURE_2D, TEXBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, TEXBO_A);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, TEXBO_B);
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		/*glUseProgram(shaderProgram);		
-		float timeValue = glfwGetTime() * 20;
-		float greenValue = (sin(timeValue) / 10.0f) + 0.5f;
-		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColour");*/	
-		/*glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);*/
+
+		float time = glfwGetTime();
+	
+		glm::mat4 view_Matrix = glm::mat4(1.0f);
+		glm::mat4 proj_Matrix = glm::mat4(1.0f);
+	
+		/*model_Matrix = glm::rotate(model_Matrix, (float)time, glm::vec3(1.0f, 0.5f, 0.3f));
+		testShader->setMat4("model", model_Matrix);*/
+		
+	/*	float cameraSpeed = 0.25f * deltaTime;
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			firstCamera->Position += cameraSpeed * cameraFront;
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			firstCamera->Position -= cameraSpeed * cameraFront;
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			firstCamera->Position -= glm::normalize(glm::cross(cameraFront, worldUp)) * cameraSpeed;
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			firstCamera->Position += glm::normalize(glm::cross(cameraFront, worldUp)) * cameraSpeed;*/
+		
+		view_Matrix = secondCamera->GetViewMatirxByEular();
+	
+		testShader->setMat4("view", view_Matrix);
+
+		proj_Matrix = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+		testShader->setMat4("projection", proj_Matrix);
+
+
+		testShader->setInt("ourTexture1", 0);
+		testShader->setInt("ourTexture2", 1);
+		//uniform in fragment gamma
+		GLfloat timeValue = glfwGetTime();
+		GLfloat gamma = (sin(timeValue) / 2) + 0.5;
+		glUniform1f(glGetUniformLocation(testShader->ID, "gamma"), gamma);
+		//testShader->setInt("gamma", 2);
+		
 		testShader->use();
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		//call the user's event and exchange buffer from front and back
+
+		
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			std::stringstream ss;
+			std::string index;
+			ss << i;
+			index = ss.str();
+
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			
+			if (i % 3 == 0) 
+			{				
+				float angle = 20.0f * (i + 1);
+				model = glm::rotate(model, (float)sin(time)*(i + 1), glm::vec3(1.0f, 0.5f, 0.3f));
+				testShader->setMat4("model", model);
+			}
+			else if(i % 3 == 1)
+			{							
+				float angle = 20.0f * (i + 1);
+				model = glm::rotate(model, (float)(time), glm::vec3(1.0f, 0.5f, 0.3f));
+				testShader->setMat4("model", model);
+			}
+			else
+			{								
+				model = glm::rotate(model, (float)cos(time)*0, glm::vec3(1.0f, 0.5f, 0.3f));
+				testShader->setMat4("model", model);
+			}
+			//testShader->setVec3(("cPosition[" + index + "]").c_str(), cubePositions[i].x, cubePositions[i].y, cubePositions[i].z);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+		//glDrawArraysInstanced(GL_TRIANGLES,0,36,10);
 		glfwPollEvents();		
 		glfwSwapBuffers(window);
 	}
