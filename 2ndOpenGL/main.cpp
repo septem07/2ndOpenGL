@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "Shader.H"
@@ -10,7 +11,7 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 #include "Camera.h"
-void processInput(GLFWwindow *window);
+
 //Vertex array
 //float vertices[] = {
 //		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   
@@ -84,6 +85,26 @@ unsigned int indices[] = {  // note that we start from 0!
 	0, 1, 2,   // first triangle
 	2, 3, 0   // second triangle
 };
+float lastX = 800;
+float lastY = 600;
+bool firstMouseLocation = true;
+float sensitivity = 0.05f;
+
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
+//create a new camera
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+float theta_pitch = glm::radians(60.0);
+float theta_yaw = glm::radians(0.0);
+Camera *firstCamera = new Camera(cameraPos, cameraFront, worldUp);
+Camera *secondCamera = new Camera(cameraPos, theta_pitch, theta_yaw, cameraFront, worldUp);
+void processInput(GLFWwindow *window);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos); 
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
 
 
 int main() {
@@ -103,7 +124,11 @@ int main() {
 		return -1;
 
 	}
+	//setting glfw properties
 	glfwMakeContextCurrent(window);	//Context: attribute, lightening, render, etc. information
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
 	//initial glew (gl function in glew)
 	glewExperimental = true;
 	if (glewInit()	!= GLEW_OK)
@@ -218,19 +243,11 @@ int main() {
 
 	//depth buffer enable
 	glEnable(GL_DEPTH_TEST);
-	//create a new camera
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-	glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	float theta_pitch = glm::radians(60.0);
-	float theta_yaw = glm::radians(0.0);
-	Camera *firstCamera = new Camera(cameraPos,cameraFront,worldUp);
-	Camera *secondCamera = new Camera(cameraPos, theta_pitch, theta_yaw, worldUp);
-	float deltaTime = 0.0f;
-	float lastFrame = 0.0f; 
-	float currentFrame = glfwGetTime();
-	deltaTime = currentFrame - lastFrame;
-	lastFrame = currentFrame;
+	
+	//delta time by frame different
+
+	
+
 
 	void framebuffer_size_callback(GLFWwindow* window, int width, int height);	//callback the window* size after deformation of window by external operation
 	//glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -250,44 +267,45 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, TEXBO_B);
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-
-		float time = glfwGetTime();
-	
+		testShader->use();
+		
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
 		glm::mat4 view_Matrix = glm::mat4(1.0f);
 		glm::mat4 proj_Matrix = glm::mat4(1.0f);
 	
 		/*model_Matrix = glm::rotate(model_Matrix, (float)time, glm::vec3(1.0f, 0.5f, 0.3f));
 		testShader->setMat4("model", model_Matrix);*/
-		
-	/*	float cameraSpeed = 0.25f * deltaTime;
+		/*
+		float cameraSpeed = 0.25f * deltaTime;
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			firstCamera->Position += cameraSpeed * cameraFront;
+			secondCamera->Position += cameraSpeed * cameraFront;
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			firstCamera->Position -= cameraSpeed * cameraFront;
+			secondCamera->Position -= cameraSpeed * cameraFront;
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			firstCamera->Position -= glm::normalize(glm::cross(cameraFront, worldUp)) * cameraSpeed;
+			secondCamera->Position -= glm::normalize(glm::cross(cameraFront, worldUp)) * cameraSpeed;
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			firstCamera->Position += glm::normalize(glm::cross(cameraFront, worldUp)) * cameraSpeed;*/
+			secondCamera->Position += glm::normalize(glm::cross(cameraFront, worldUp)) * cameraSpeed;*/
 		
-		view_Matrix = secondCamera->GetViewMatirxByEular();
-	
-		testShader->setMat4("view", view_Matrix);
-
-		proj_Matrix = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+		
+		proj_Matrix = glm::perspective(glm::radians(secondCamera->Zoom), (float)width / (float)height, 0.1f, 100.0f);
 		testShader->setMat4("projection", proj_Matrix);
-
-
 		testShader->setInt("ourTexture1", 0);
 		testShader->setInt("ourTexture2", 1);
+		
+		
 		//uniform in fragment gamma
 		GLfloat timeValue = glfwGetTime();
 		GLfloat gamma = (sin(timeValue) / 2) + 0.5;
 		glUniform1f(glGetUniformLocation(testShader->ID, "gamma"), gamma);
 		//testShader->setInt("gamma", 2);
 		
-		testShader->use();
 
+	
+		view_Matrix = secondCamera->GetViewMatirx();
 		
+		testShader->setMat4("view", view_Matrix);
 		for (unsigned int i = 0; i < 10; i++)
 		{
 			std::stringstream ss;
@@ -301,18 +319,18 @@ int main() {
 			if (i % 3 == 0) 
 			{				
 				float angle = 20.0f * (i + 1);
-				model = glm::rotate(model, (float)sin(time)*(i + 1), glm::vec3(1.0f, 0.5f, 0.3f));
+				model = glm::rotate(model, (float)sin(currentFrame)*(i + 1), glm::vec3(1.0f, 0.5f, 0.3f));
 				testShader->setMat4("model", model);
 			}
 			else if(i % 3 == 1)
 			{							
 				float angle = 20.0f * (i + 1);
-				model = glm::rotate(model, (float)(time), glm::vec3(1.0f, 0.5f, 0.3f));
+				model = glm::rotate(model, (float)(currentFrame), glm::vec3(1.0f, 0.5f, 0.3f));
 				testShader->setMat4("model", model);
 			}
 			else
 			{								
-				model = glm::rotate(model, (float)cos(time)*0, glm::vec3(1.0f, 0.5f, 0.3f));
+				model = glm::rotate(model, (float)cos(currentFrame)*0, glm::vec3(1.0f, 0.5f, 0.3f));
 				testShader->setMat4("model", model);
 			}
 			//testShader->setVec3(("cPosition[" + index + "]").c_str(), cubePositions[i].x, cubePositions[i].y, cubePositions[i].z);
@@ -330,8 +348,39 @@ int main() {
 }
 
 
+
 void processInput(GLFWwindow *window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		secondCamera->ProcessKeyboard(FORWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		secondCamera->ProcessKeyboard(BACKWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		secondCamera->ProcessKeyboard(LEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		secondCamera->ProcessKeyboard(RIGHT, deltaTime);
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+	if (firstMouseLocation == true) {
+		lastX = xpos;
+		lastY = ypos;
+		firstMouseLocation = false;
+	}
+	float offsetX, offsetY;
+	offsetX = xpos - lastX;
+	offsetY = lastY - ypos;
+	lastX = xpos;
+	lastY = ypos;
+	GLboolean constrainPitch = false;
+	secondCamera->ProcessMouseMovement(offsetX, offsetY, constrainPitch);
+	//std::cout << std::fixed << deltaX << std::endl;
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	secondCamera->ProcessMouseScroll(yoffset);
 }
