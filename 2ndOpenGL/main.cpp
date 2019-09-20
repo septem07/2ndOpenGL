@@ -1,4 +1,4 @@
-#define GLEW_STATIC
+
 #include <iostream>
 #include <iomanip>
 #include <GL/glew.h>
@@ -13,17 +13,7 @@
 #include <gtc/type_ptr.hpp>
 #include "Camera.h"
 
-//Vertex array
-//float vertices[] = {
-//		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   
-//	 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,		1.0f, 0.0f,   
-//	-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   
-//	-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,		0.0f, 1.0f   
-//	/* 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,     1.0f, 1.0f,  
-//	-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,     1.0f, 0.0f,   
-//	 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f,     0.0f, 0.0f,   
-//	 -0.9f,  0.5f, 0.0f, 0.7f, 0.5f, 0.1f	  0.0f, 1.0f */
-//};
+
 #pragma region "model paramter"
 float vertices[] ={
 		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -104,8 +94,9 @@ Camera *secondCamera = new Camera(cameraPos, theta_pitch, theta_yaw, cameraFront
 void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos); 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
 const unsigned int SCR_WIDTH = 1600;
-const unsigned int SCR_HEIGHT = 900;
+const unsigned int SCR_HEIGHT = 1200;
 
 
 int main() {
@@ -130,28 +121,27 @@ int main() {
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
+	
+
 	//initial glew (gl function in glew)
 	glewExperimental = true;
 	if (glewInit()	!= GLEW_OK)
 	{
 		std::cout << "glew ist not success" << std::endl;
 	}
-	glViewport(200, 0, 1200, 1200);
-	//Function, enable opengl to cut off the back(clockwised) vertex or front(anticlockwised) vertex
-	/*glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);*/
-	//set VAO
+	glViewport(200, 0, 1600, 1200);
+
 	
 	Shader *objectShader = new Shader("Object.vert", "Object.frag");
 	Shader *lightShader = new Shader("Light.vert", "Light.frag");
-	unsigned int VBO, cubeVAO;
-	glGenVertexArrays(1, &cubeVAO);
+	unsigned int VBO, objectVAO;
+	glGenVertexArrays(1, &objectVAO);
 	glGenBuffers(1, &VBO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glBindVertexArray(cubeVAO);
+	glBindVertexArray(objectVAO);
 
 	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
@@ -243,9 +233,9 @@ int main() {
 	//delta time by frame different
 #pragma endregion "texture"
 	
-
-
-	void framebuffer_size_callback(GLFWwindow* window, int width, int height);	//callback the window* size after deformation of window by external operation
+	glEnable(GL_DEPTH_TEST);
+	void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+		//callback the window* size after deformation of window by external operation
 	//glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	while (!glfwWindowShouldClose(window)) //do drawing during window is opening
 	{
@@ -257,41 +247,22 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clean the buffer
 	
 
-		/*glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, TEXBO_A);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, TEXBO_B);
-		glBindVertexArray(VAO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		testShader->use();*/
 		
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-		glm::mat4 view_Matrix = glm::mat4(1.0f);
-		glm::mat4 proj_Matrix = glm::mat4(1.0f);
+		
 	
-		/*model_Matrix = glm::rotate(model_Matrix, (float)time, glm::vec3(1.0f, 0.5f, 0.3f));
-		testShader->setMat4("model", model_Matrix);*/
-		/*
-		float cameraSpeed = 0.25f * deltaTime;
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			secondCamera->Position += cameraSpeed * cameraFront;
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			secondCamera->Position -= cameraSpeed * cameraFront;
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			secondCamera->Position -= glm::normalize(glm::cross(cameraFront, worldUp)) * cameraSpeed;
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			secondCamera->Position += glm::normalize(glm::cross(cameraFront, worldUp)) * cameraSpeed;*/
-		glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+	
+
+		glm::vec3 lightPos(0.0f, -3.0f, -5.0f);
 		objectShader->use();
 		objectShader->setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 		objectShader->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 		objectShader->setVec3("lightPos", lightPos);
 
-		
-		proj_Matrix = glm::perspective(glm::radians(secondCamera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		view_Matrix = secondCamera->GetViewMatirx();
+		glm::mat4 proj_Matrix = glm::perspective(glm::radians(secondCamera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 view_Matrix= secondCamera->GetViewMatirx();
 		objectShader->setMat4("projection", proj_Matrix);			
 		objectShader->setMat4("view", view_Matrix);
 		for (unsigned int i = 0; i < 10; i++)
@@ -306,22 +277,22 @@ int main() {
 			
 			if (i % 3 == 0) 
 			{				
-				float angle = 20.0f * (i + 1);
-				model = glm::rotate(model, (float)sin(currentFrame)*(i + 1), glm::vec3(1.0f, 0.5f, 0.3f));
+					
+				model = glm::rotate(model, 0.0f, glm::vec3(1.0f, 0.5f, 0.3f));
 				objectShader->setMat4("model", model);
 			}
 			else if(i % 3 == 1)
 			{							
-				float angle = 20.0f * (i + 1);
-				model = glm::rotate(model, (float)(currentFrame), glm::vec3(1.0f, 0.5f, 0.3f));
+			
+				model = glm::rotate(model, 20.0f, glm::vec3(1.0f, 0.5f, 0.3f));
 				objectShader->setMat4("model", model);
 			}
 			else
 			{								
-				model = glm::rotate(model, (float)cos(currentFrame)*0, glm::vec3(1.0f, 0.5f, 0.3f));
+				model = glm::rotate(model, -45.0f, glm::vec3(1.0f, 0.5f, 0.3f));
 				objectShader->setMat4("model", model);
 			}
-			//testShader->setVec3(("cPosition[" + index + "]").c_str(), cubePositions[i].x, cubePositions[i].y, cubePositions[i].z);
+			glBindVertexArray(objectVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		lightShader->use();

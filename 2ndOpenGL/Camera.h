@@ -14,7 +14,7 @@ enum Camera_Movement {
 class Camera
 {
 public:
-	Camera(glm::vec3 cameraPos, glm::vec3 cameraFront, glm::vec3 worldUp);
+
 	Camera(glm::vec3 cameraPos, float theta_Pitch, float theta_Yaw, glm::vec3 cameraFront, glm::vec3 worldUp);
 	~Camera();
 	glm::vec3 Position;
