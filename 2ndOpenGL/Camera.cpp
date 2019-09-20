@@ -1,13 +1,6 @@
 #include "Camera.h"
 
-Camera::Camera(glm::vec3 camPos, glm::vec3 camFront, glm::vec3 worldUp)
-{
-	Position = camPos;
-	Front = camFront;
-	WorldUp = worldUp;
-	Right = glm::normalize(glm::cross(Front, WorldUp));  
-	Up = glm::normalize(glm::cross(Right, Front));
-}
+
 Camera::Camera(glm::vec3 cameraPos, float theta_Pitch, float theta_Yaw, glm::vec3 cameraFront,glm::vec3 worldUp)
 {
 	Position = cameraPos;
@@ -71,6 +64,10 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 		Position -= Right * velocity;
 	if (direction == RIGHT)
 		Position += Right * velocity;
+	if (direction == UP)
+		Position += WorldUp * velocity;
+	if (direction == DOWN)
+		Position -= WorldUp * velocity;
 }
 Camera::~Camera()
 {

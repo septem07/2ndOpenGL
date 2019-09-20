@@ -37,10 +37,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="vertexSourceFile.vxs" />
-    <Text Include="fragmentSourceFile.fts" />
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="container.jpg">
       <Filter>Resource Files</Filter>
     </Image>
@@ -53,5 +49,11 @@
     <Image Include="huajialpha.png">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Light.frag" />
+    <None Include="Object.frag" />
+    <None Include="Light.vert" />
+    <None Include="Object.vert" />
   </ItemGroup>
 </Project>
