@@ -259,12 +259,14 @@ int main() {
 		objectShader->use();
 		objectShader->setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 		objectShader->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		objectShader->setVec3("cameraPos", secondCamera->Position);
 		objectShader->setVec3("lightPos", lightPos);
 
 		glm::mat4 proj_Matrix = glm::perspective(glm::radians(secondCamera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view_Matrix= secondCamera->GetViewMatirx();
 		objectShader->setMat4("projection", proj_Matrix);			
 		objectShader->setMat4("view", view_Matrix);
+		float transAlpha = currentFrame;
 		for (unsigned int i = 0; i < 10; i++)
 		{
 			std::stringstream ss;
@@ -278,7 +280,7 @@ int main() {
 			if (i % 3 == 0) 
 			{				
 					
-				model = glm::rotate(model, 0.0f, glm::vec3(1.0f, 0.5f, 0.3f));
+				model = glm::rotate(model, transAlpha, glm::vec3(1.0f, 0.5f, 0.3f));
 				objectShader->setMat4("model", model);
 			}
 			else if(i % 3 == 1)
@@ -289,7 +291,7 @@ int main() {
 			}
 			else
 			{								
-				model = glm::rotate(model, -45.0f, glm::vec3(1.0f, 0.5f, 0.3f));
+				model = glm::rotate(model, -transAlpha, glm::vec3(1.0f, 0.5f, 0.3f));
 				objectShader->setMat4("model", model);
 			}
 			glBindVertexArray(objectVAO);
