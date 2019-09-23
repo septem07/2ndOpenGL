@@ -1,9 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.421
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "2ndOpenGL", "2ndOpenGL\2ndOpenGL.vcxproj", "{34C22BCB-D042-4F57-BE2D-49C33498886F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{378B3784-837C-45B4-A9C3-EBAE06BFCF89}"
+	ProjectSection(SolutionItems) = preProject
+		2ndOpenGL\container2.png = 2ndOpenGL\container2.png
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,8 +24,8 @@ Global
 		{34C22BCB-D042-4F57-BE2D-49C33498886F}.Debug|x86.Build.0 = Debug|Win32
 		{34C22BCB-D042-4F57-BE2D-49C33498886F}.Release|x64.ActiveCfg = Release|x64
 		{34C22BCB-D042-4F57-BE2D-49C33498886F}.Release|x64.Build.0 = Release|x64
-		{34C22BCB-D042-4F57-BE2D-49C33498886F}.Release|x86.ActiveCfg = Release|Win32
-		{34C22BCB-D042-4F57-BE2D-49C33498886F}.Release|x86.Build.0 = Release|Win32
+		{34C22BCB-D042-4F57-BE2D-49C33498886F}.Release|x86.ActiveCfg = Debug|Win32
+		{34C22BCB-D042-4F57-BE2D-49C33498886F}.Release|x86.Build.0 = Debug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
